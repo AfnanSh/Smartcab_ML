@@ -4,6 +4,13 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 
+'''
+1. Basic Agent Simulation 
+Only change the following arguments: enforce_deadline, update_delay, log_metrics, n_test
+and implement choose_action()
+'''
+
+
 class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
@@ -19,10 +26,7 @@ class LearningAgent(Agent):
         self.epsilon = epsilon   # Random exploration factor
         self.alpha = alpha       # Learning factor
 
-        ###########
-        ## TO DO ##
-        ###########
-        # Set any additional class parameters as needed
+        self.t = 0 #Initialize the number of trials
 
 
     def reset(self, destination=None, testing=False):
@@ -103,13 +107,42 @@ class LearningAgent(Agent):
         self.next_waypoint = self.planner.next_waypoint()
         action = None
 
-        ########### 
-        ## TO DO ##
-        ###########
-        # When not learning, choose a random action
-        # When learning, choose a random action with 'epsilon' probability
-        # Otherwise, choose an action with the highest Q-value for the current state
-        # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
+        if not self.learning:
+            # If the agent is not learning then choose a random action
+            action = random.choice(self.valid_actions)
+        else:
+
+            if random.random() < self.epsilon:
+                # When learning, choose a random action with 'epsilon' probability
+                action = random.choice(self.valid_actions)
+                # numpy.random.choice(self.valid_actions, p=[self.epsilon])
+            else:
+                # Otherwise, choose an action with the highest Q-value for the current state
+                max_actions_list = []
+                for action in self.valid_actions:
+                  if self.valid_actions:
+                    if self.Q[state][action] >= self.get_maxQ(state):
+                        max_actions_list.append(action)
+                # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
+                action = random.choice(max_actions_list)
+
+        # # When learning, choose a random action with 'epsilon' probability
+        # if self.learning:
+        #     if random.random() < self.epsilon:
+        #         random.choice(self.valid_actions)
+        #     # numpy.random.choice(self.valid_actions, p=[self.epsilon])
+        # # When not learning, choose a random action
+        # elif not self.learning:
+        #     action = random.choice(self.valid_actions)
+        # # Otherwise, choose an action with the highest Q-value for the current state
+        # else:
+        #     max_actions_list = []
+        #     for action in self.valid_actions:
+        #         if self.valid_actions:
+        #             if self.Q[state][action] >= self.get_maxQ(state):
+        #                 max_actions_list.append(action)
+        #     # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
+        #     action = random.choice(max_actions_list)
         return action
 
 
@@ -151,7 +184,7 @@ def run():
     #   verbose     - set to True to display additional output from the simulation
     #   num_dummies - discrete number of dummy agents in the environment, default is 100
     #   grid_size   - discrete number of intersections (columns, rows), default is (8, 6)
-    env = Environment()
+    env = Environment(verbose=True)
     
     ##############
     # Create the driving agent
@@ -165,7 +198,7 @@ def run():
     # Follow the driving agent
     # Flags:
     #   enforce_deadline - set to True to enforce a deadline metric
-    env.set_primary_agent(agent)
+    env.set_primary_agent(agent, enforce_deadline=True)
 
     ##############
     # Create the simulation
@@ -174,14 +207,14 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True)
     
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run()
+    sim.run(n_test=10)
 
 
 if __name__ == '__main__':
