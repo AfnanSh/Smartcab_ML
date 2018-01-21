@@ -24,6 +24,10 @@ and change the decay function
 Modify the alpha, epsilon and tolerance
 '''
 
+'''
+Resource(s): 
+[1]: https://medium.com/@m.alzantot/deep-reinforcement-learning-demysitifed-episode-2-policy-iteration-value-iteration-and-q-978f9e89ddaa
+'''
 
 class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
@@ -84,7 +88,9 @@ class LearningAgent(Agent):
         # constraints in order for you to learn how to adjust epsilon and alpha, and thus learn about the balance between exploration and exploitation.
         # With the hand-engineered features, this learning process gets entirely negated.
         
-        # Set 'state' as a tuple of relevant data for the agent        
+        # Set 'state' as a tuple of relevant data for the agent
+        # light => Traffic light
+        # oncoming => the direction of any oncoming traffic in an intersection
         state = (inputs['light'], inputs['oncoming'], waypoint)
 
         return state
@@ -110,6 +116,7 @@ class LearningAgent(Agent):
                 self.Q[state] = {}
                 for action in self.valid_actions:
                     self.Q[state][action] = 0.0
+                # Another solution => self.Q = {None: 0.0, 'right': 0.0, 'left': 0.0, 'forward': 0.0}
         return
 
 
@@ -126,9 +133,8 @@ class LearningAgent(Agent):
             # If the agent is not learning then choose a random action
             action = random.choice(self.valid_actions)
         else:
-
+            # When learning, choose a random action with 'epsilon' probability
             if random.random() < self.epsilon:
-                # When learning, choose a random action with 'epsilon' probability
                 action = random.choice(self.valid_actions)
                 # numpy.random.choice(self.valid_actions, p=[self.epsilon])
             else:
@@ -138,7 +144,6 @@ class LearningAgent(Agent):
                   if self.valid_actions:
                     if self.Q[state][action] >= self.get_maxQ(state):
                         max_actions_list.append(action)
-                # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
                 # Choose randomly among actions. (Tie breaker)
                 action = random.choice(max_actions_list)
 
