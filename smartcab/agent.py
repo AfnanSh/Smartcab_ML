@@ -70,6 +70,10 @@ class LearningAgent(Agent):
             # f(x) = 1/t^2
             self.t = self.t + 1 # Update the number of trials
             self.epsilon = 1/math.pow(self.t, 2)
+            # f(x) = cos(alpha * t)
+            # self.epsilon = math.cos(self.alpha * self.t)
+            # f(x) = a ^ t
+            # self.epsilon = math.pow(self.alpha, self.t)
 
         return None
 
@@ -91,7 +95,7 @@ class LearningAgent(Agent):
         # Set 'state' as a tuple of relevant data for the agent
         # light => Traffic light
         # oncoming => the direction of any oncoming traffic in an intersection
-        state = (inputs['light'], inputs['oncoming'], waypoint)
+        state = (inputs['light'], inputs['oncoming'], inputs['left'], waypoint)
 
         return state
 
@@ -199,7 +203,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=True, alpha=0.8)
+    agent = env.create_agent(LearningAgent, learning=True, alpha=0.9)
     
     ##############
     # Follow the driving agent
@@ -221,7 +225,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10, tolerance=0.05)
+    sim.run(n_test=20, tolerance=0.000003)
 
 
 if __name__ == '__main__':
